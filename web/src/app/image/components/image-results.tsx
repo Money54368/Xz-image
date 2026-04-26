@@ -42,7 +42,7 @@ export function ImageResults({
               fontFamily: '"Palatino Linotype","Book Antiqua","URW Palladio L","Times New Roman",serif',
             }}
           >
-            在同一窗口里保留本地历史与任务状态，并从已有结果图继续发起新的无状态编辑。
+            在同一窗口保留本地历史和任务状态，并从已有结果图继续发起新的编辑。
           </p>
         </div>
       </div>
@@ -68,9 +68,7 @@ export function ImageResults({
               <div className="max-w-[82%] px-1 py-1 text-[15px] leading-7 text-stone-900">
                 <div className="mb-2 flex flex-wrap justify-end gap-2 text-[11px] text-stone-400">
                   <span>第 {turnIndex + 1} 轮</span>
-                  <span>
-                    {turn.mode === "edit" ? "编辑图" : "文生图"}
-                  </span>
+                  <span>{turn.mode === "edit" ? "图生图" : "文生图"}</span>
                   <span>{getTurnStatusLabel(turn.status)}</span>
                   <span>{formatConversationTime(turn.createdAt)}</span>
                 </div>
@@ -127,10 +125,7 @@ export function ImageResults({
                       const currentIndex = successfulTurnImages.findIndex((item) => item.id === image.id);
 
                       return (
-                        <div
-                          key={image.id}
-                          className="break-inside-avoid overflow-hidden"
-                        >
+                        <div key={image.id} className="break-inside-avoid overflow-hidden">
                           <button
                             type="button"
                             onClick={() => onOpenLightbox(successfulTurnImages, currentIndex)}
@@ -200,7 +195,9 @@ export function ImageResults({
                               <LoaderCircle className="size-5 animate-spin" />
                             )}
                           </div>
-                          <p className="text-sm">{turn.status === "queued" ? "已加入当前对话队列..." : "正在处理图片..."}</p>
+                          <p className="text-sm">
+                            {turn.status === "queued" ? "已加入当前对话队列..." : "正在处理图片..."}
+                          </p>
                         </div>
                       </div>
                     );

@@ -56,16 +56,18 @@ export function ImageSidebar({
               正在读取会话记录
             </div>
           ) : conversations.length === 0 ? (
-            <div className="px-2 py-3 text-sm leading-6 text-stone-500">还没有图片记录，输入提示词后会在这里显示。</div>
+            <div className="px-2 py-3 text-sm leading-6 text-stone-500">
+              还没有图片记录，输入提示词后会在这里显示。
+            </div>
           ) : (
             conversations.map((conversation) => {
               const active = conversation.id === selectedConversationId;
               const stats = getImageConversationStats(conversation);
               return (
-                  <div
-                    key={conversation.id}
-                    className={cn(
-                      "group relative w-full border-l-2 px-3 py-2 text-left transition sm:py-3",
+                <div
+                  key={conversation.id}
+                  className={cn(
+                    "group relative w-full border-l-2 px-3 py-2 text-left transition sm:py-3",
                     active
                       ? "border-stone-900 bg-black/[0.03] text-stone-950"
                       : "border-transparent text-stone-700 hover:border-stone-300 hover:bg-white/40",

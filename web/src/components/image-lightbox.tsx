@@ -4,8 +4,6 @@ import { useCallback, useEffect } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { ChevronLeft, ChevronRight, Download, X } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-
 type LightboxImage = {
   id: string;
   src: string;
@@ -73,11 +71,8 @@ export function ImageLightbox({
           className="fixed inset-0 z-50 flex items-center justify-center outline-none"
           onPointerDownOutside={(e) => e.preventDefault()}
         >
-          <DialogPrimitive.Title className="sr-only">
-            图片预览
-          </DialogPrimitive.Title>
+          <DialogPrimitive.Title className="sr-only">图片预览</DialogPrimitive.Title>
 
-          {/* toolbar */}
           <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
             {images.length > 1 && (
               <span className="rounded-full bg-black/50 px-3 py-1.5 text-xs font-medium text-white/90">
@@ -98,7 +93,6 @@ export function ImageLightbox({
             </DialogPrimitive.Close>
           </div>
 
-          {/* prev */}
           {hasPrev && (
             <button
               type="button"
@@ -110,7 +104,6 @@ export function ImageLightbox({
             </button>
           )}
 
-          {/* image */}
           <div
             className="flex max-h-[90vh] max-w-[90vw] items-center justify-center"
             onClick={() => onOpenChange(false)}
@@ -124,7 +117,6 @@ export function ImageLightbox({
             />
           </div>
 
-          {/* next */}
           {hasNext && (
             <button
               type="button"

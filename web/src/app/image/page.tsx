@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { History, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -8,14 +9,10 @@ import { ImageComposer } from "@/app/image/components/image-composer";
 import { ImageResults, type ImageLightboxItem } from "@/app/image/components/image-results";
 import { ImageSidebar } from "@/app/image/components/image-sidebar";
 import { ImageLightbox } from "@/components/image-lightbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { editImage, fetchAccounts, generateImage, type Account } from "@/lib/api";
+import { editImage, generateImage } from "@/lib/api";
+import { getStoredAuthKey } from "@/store/auth";
 import {
   clearImageConversations,
   deleteImageConversation,
@@ -53,11 +50,6 @@ function formatConversationTime(value: string) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(date);
-}
-
-function formatAvailableQuota(accounts: Account[]) {
-  const availableAccounts = accounts.filter((account) => account.status !== "禁用");
-  return String(availableAccounts.reduce((sum, account) => sum + Math.max(0, account.quota), 0));
 }
 
 function createId() {
@@ -171,6 +163,7 @@ async function recoverConversationHistory(items: ImageConversation[]) {
 }
 
 export default function ImagePage() {
+  const router = useRouter();
   const didLoadQuotaRef = useRef(false);
   const conversationsRef = useRef<ImageConversation[]>([]);
   const resultsViewportRef = useRef<HTMLDivElement>(null);
@@ -191,6 +184,7 @@ export default function ImagePage() {
   const [lightboxImages, setLightboxImages] = useState<ImageLightboxItem[]>([]);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [authChecked, setAuthChecked] = useState(false);
 
   const parsedCount = useMemo(() => Math.max(1, Math.min(10, Number(imageCount) || 1)), [imageCount]);
   const selectedConversation = useMemo(
@@ -205,6 +199,26 @@ export default function ImagePage() {
       }, 0),
     [conversations],
   );
+
+  useEffect(() => {
+    let cancelled = false;
+
+    void (async () => {
+      const storedAuthKey = await getStoredAuthKey();
+      if (cancelled) {
+        return;
+      }
+      if (!storedAuthKey) {
+        router.replace("/login");
+        return;
+      }
+      setAuthChecked(true);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [router]);
 
   useEffect(() => {
     conversationsRef.current = conversations;
@@ -250,12 +264,7 @@ export default function ImagePage() {
   }, []);
 
   const loadQuota = useCallback(async () => {
-    try {
-      const data = await fetchAccounts();
-      setAvailableQuota(formatAvailableQuota(data.items));
-    } catch {
-      setAvailableQuota((prev) => (prev === "加载中..." ? "--" : prev));
-    }
+    setAvailableQuota("以 sub2api 余额为准");
   }, []);
 
   useEffect(() => {
@@ -263,23 +272,13 @@ export default function ImagePage() {
       return;
     }
     didLoadQuotaRef.current = true;
-
-    const handleFocus = () => {
-      void loadQuota();
-    };
-
     void loadQuota();
-    window.addEventListener("focus", handleFocus);
-    return () => {
-      window.removeEventListener("focus", handleFocus);
-    };
   }, [loadQuota]);
 
   useEffect(() => {
     if (!selectedConversation) {
       return;
     }
-
     resultsViewportRef.current?.scrollTo({
       top: resultsViewportRef.current.scrollHeight,
       behavior: "smooth",
@@ -623,7 +622,6 @@ export default function ImagePage() {
         const resumedFailedCount = settled.length - resumedSuccessCount;
         const existingSuccessCount = queuedTurn.images.filter((image) => image.status === "success").length;
         const existingFailedCount = queuedTurn.images.filter((image) => image.status === "error").length;
-        const successCount = existingSuccessCount + resumedSuccessCount;
         const failedCount = existingFailedCount + resumedFailedCount;
 
         await updateConversation(conversationId, (current) => {
@@ -713,7 +711,7 @@ export default function ImagePage() {
     const draftTurn: ImageTurn = {
       id: turnId,
       prompt,
-      model: "auto",
+      model: "gpt-image-2",
       mode: imageMode,
       referenceImages: imageMode === "edit" ? referenceImages : [],
       count: parsedCount,
@@ -755,6 +753,10 @@ export default function ImagePage() {
       toast.success("已发送到当前对话");
     }
   };
+
+  if (!authChecked) {
+    return null;
+  }
 
   return (
     <>
@@ -812,10 +814,7 @@ export default function ImagePage() {
               <History className="mr-2 size-4" />
               历史记录 ({conversations.length})
             </Button>
-            <Button
-              className="h-10 rounded-2xl bg-stone-950 text-white shadow-sm"
-              onClick={handleCreateDraft}
-            >
+            <Button className="h-10 rounded-2xl bg-stone-950 text-white shadow-sm" onClick={handleCreateDraft}>
               <Plus className="size-4" />
               新建
             </Button>

@@ -56,15 +56,22 @@ export function ImageComposer({
     () => referenceImages.map((image, index) => ({ id: `${image.name}-${index}`, src: image.dataUrl })),
     [referenceImages],
   );
-  const imageSizeOptions = [
-    { value: "", label: "未指定" },
-    { value: "1:1", label: "1:1 (正方形)" },
-    { value: "16:9", label: "16:9 (横版)" },
-    { value: "4:3", label: "4:3 (横版)" },
-    { value: "3:4", label: "3:4 (竖版)" },
-    { value: "9:16", label: "9:16 (竖版)" },
-  ];
-  const imageSizeLabel = imageSizeOptions.find((option) => option.value === imageSize)?.label || "未指定";
+
+  const imageSizeOptions = mode === "edit"
+    ? [
+        { value: "", label: "未指定（跟随原图）" },
+        { value: "1:1", label: "1:1（1024x1024）" },
+      ]
+    : [
+        { value: "", label: "未指定" },
+        { value: "1:1", label: "1:1（1024x1024）" },
+        { value: "16:9", label: "16:9（1824x1024）" },
+        { value: "9:16", label: "9:16（1024x1824）" },
+      ];
+
+  const imageSizeLabel =
+    imageSizeOptions.find((option) => option.value === imageSize)?.label ||
+    (mode === "edit" ? "未指定（跟随原图）" : "未指定");
 
   useEffect(() => {
     if (!isSizeMenuOpen) {
@@ -162,7 +169,9 @@ export function ImageComposer({
               onChange={(event) => onPromptChange(event.target.value)}
               onPaste={handleTextareaPaste}
               placeholder={
-                mode === "edit" ? "描述你希望如何修改这张参考图，可直接粘贴图片" : "输入你想要生成的画面，也可直接粘贴图片"
+                mode === "edit"
+                  ? "描述你希望如何修改这张参考图，也可以直接粘贴图片"
+                  : "输入你想生成的画面，也可以直接粘贴图片开始图生图"
               }
               onKeyDown={(event) => {
                 if (event.key === "Enter" && !event.shiftKey) {
@@ -184,17 +193,21 @@ export function ImageComposer({
                       onClick={onPickReferenceImage}
                     >
                       <ImagePlus className="size-3.5 sm:size-4" />
-                      <span className="hidden sm:inline">{referenceImages.length > 0 ? "继续添加参考图" : "上传参考图"}</span>
+                      <span className="hidden sm:inline">
+                        {referenceImages.length > 0 ? "继续添加参考图" : "上传参考图"}
+                      </span>
                       <span className="sm:hidden">{referenceImages.length > 0 ? "继续" : "上传"}</span>
                     </Button>
                   )}
                   <div className="rounded-full bg-stone-100 px-2 py-1 text-[10px] font-medium text-stone-600 sm:px-3 sm:py-2 sm:text-xs">
-                    <span className="hidden xs:inline">剩余额度 </span>{availableQuota}
+                    <span className="hidden xs:inline">余额状态 </span>
+                    {availableQuota}
                   </div>
                   {activeTaskCount > 0 && (
                     <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-medium text-amber-700 sm:gap-1.5 sm:px-3 sm:py-2 sm:text-xs">
                       <LoaderCircle className="size-3 animate-spin" />
-                      {activeTaskCount}<span className="hidden sm:inline"> 个任务处理中</span>
+                      {activeTaskCount}
+                      <span className="hidden sm:inline"> 个任务处理中</span>
                     </div>
                   )}
                   <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2 py-0.5 sm:gap-2 sm:px-3 sm:py-1">
@@ -216,14 +229,14 @@ export function ImageComposer({
                     <span className="font-medium text-stone-700 sm:text-sm">比例</span>
                     <button
                       type="button"
-                      className="flex h-7 w-[110px] items-center justify-between bg-transparent text-left text-xs font-bold text-stone-700 sm:h-8 sm:w-[132px]"
+                      className="flex h-7 w-[148px] items-center justify-between bg-transparent text-left text-xs font-bold text-stone-700 sm:h-8 sm:w-[176px]"
                       onClick={() => setIsSizeMenuOpen((open) => !open)}
                     >
                       <span className="truncate">{imageSizeLabel}</span>
                       <ChevronDown className={cn("size-4 shrink-0 opacity-60 transition", isSizeMenuOpen && "rotate-180")} />
                     </button>
                     {isSizeMenuOpen ? (
-                      <div className="absolute bottom-[calc(100%+10px)] left-0 z-50 w-[170px] overflow-hidden rounded-3xl border border-white/80 bg-white p-2 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)] sm:w-[186px]">
+                      <div className="absolute bottom-[calc(100%+10px)] left-0 z-50 w-[220px] overflow-hidden rounded-3xl border border-white/80 bg-white p-2 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)]">
                         {imageSizeOptions.map((option) => {
                           const active = option.value === imageSize;
                           return (

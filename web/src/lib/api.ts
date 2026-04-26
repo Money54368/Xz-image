@@ -57,11 +57,46 @@ export type SettingsConfig = {
   [key: string]: unknown;
 };
 
+const imageRetryDelayMs = 1200;
+
+function shouldRetryImageRequest(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error || "");
+  return /\b502\b|\b524\b|Bad Gateway|timeout|temporar|upstream/i.test(message);
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function withImageRetry<T>(executor: () => Promise<T>) {
+  try {
+    return await executor();
+  } catch (error) {
+    if (!shouldRetryImageRequest(error)) {
+      throw error;
+    }
+    await sleep(imageRetryDelayMs);
+    return executor();
+  }
+}
+
+function normalizeImageSizeForSub2API(size?: string) {
+  switch (String(size || "").trim()) {
+    case "1:1":
+      return "1024x1024";
+    case "16:9":
+      return "1824x1024";
+    case "9:16":
+      return "1024x1824";
+    default:
+      return "";
+  }
+}
+
 export async function login(authKey: string) {
   const normalizedAuthKey = String(authKey || "").trim();
-  return httpRequest<{ ok: boolean }>("/auth/login", {
-    method: "POST",
-    body: {},
+  return httpRequest<{ object?: string; data?: Array<{ id: string }> }>("/v1/models", {
+    method: "GET",
     headers: {
       Authorization: `Bearer ${normalizedAuthKey}`,
     },
@@ -112,22 +147,26 @@ export async function updateAccount(
 }
 
 export async function generateImage(prompt: string, model?: ImageModel, size?: string) {
-  return httpRequest<{ created: number; data: Array<{ b64_json: string; revised_prompt?: string }> }>(
-    "/v1/images/generations",
-    {
-      method: "POST",
-      body: {
-        prompt,
-        ...(model ? { model } : {}),
-        ...(size ? { size } : {}),
-        n: 1,
-        response_format: "b64_json",
+  const normalizedSize = normalizeImageSizeForSub2API(size);
+  return withImageRetry(() =>
+    httpRequest<{ created: number; data: Array<{ b64_json: string; revised_prompt?: string }> }>(
+      "/v1/images/generations",
+      {
+        method: "POST",
+        body: {
+          prompt,
+          ...(model ? { model } : {}),
+          ...(normalizedSize ? { size: normalizedSize } : {}),
+          n: 1,
+          response_format: "b64_json",
+        },
       },
-    },
+    ),
   );
 }
 
 export async function editImage(files: File | File[], prompt: string, model?: ImageModel, size?: string) {
+  const normalizedSize = normalizeImageSizeForSub2API(size);
   const formData = new FormData();
   const uploadFiles = Array.isArray(files) ? files : [files];
 
@@ -138,17 +177,19 @@ export async function editImage(files: File | File[], prompt: string, model?: Im
   if (model) {
     formData.append("model", model);
   }
-  if (size) {
-    formData.append("size", size);
+  if (normalizedSize) {
+    formData.append("size", normalizedSize);
   }
   formData.append("n", "1");
 
-  return httpRequest<{ created: number; data: Array<{ b64_json: string; revised_prompt?: string }> }>(
-    "/v1/images/edits",
-    {
-      method: "POST",
-      body: formData,
-    },
+  return withImageRetry(() =>
+    httpRequest<{ created: number; data: Array<{ b64_json: string; revised_prompt?: string }> }>(
+      "/v1/images/edits",
+      {
+        method: "POST",
+        body: formData,
+      },
+    ),
   );
 }
 

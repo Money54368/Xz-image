@@ -1,4 +1,10 @@
 <h1 align="center">ChatGPT2API</h1>
+> [!NOTE]
+> This fork is a `chatgpt2api`-derived `sub2api` adaptation build.
+> The `web` app is customized as `Xz-Image` and proxies image requests through `sub2api`.
+>
+> 本仓库当前为基于 `chatgpt2api` 的 `sub2api` 适配二创版本。
+> 其中 `web` 已定制为 `Xz-Image`，并通过服务端代理接入 `sub2api` 图片能力。
 
 
 <p align="center">ChatGPT2API 主要是对 ChatGPT 官网相关能力进行逆向整理与封装，提供面向 ChatGPT 图片生成、图片编辑、多图组图编辑场景的 OpenAI 兼容图片 API / 代理，并集成在线画图、号池管理、多种账号导入方式与 Docker 自托管部署能力。</p>
