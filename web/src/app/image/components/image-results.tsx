@@ -26,8 +26,8 @@ export function ImageResults({
 }: ImageResultsProps) {
   if (!selectedConversation) {
     return (
-      <div className="flex min-h-[220px] items-start justify-center pt-8 text-center sm:min-h-[280px] sm:pt-10">
-        <div className="w-full max-w-4xl">
+      <div className="flex min-h-[180px] items-start justify-center pt-4 text-center sm:min-h-[220px] sm:pt-6">
+        <div className="w-full max-w-3xl">
           <h1
             className="text-3xl font-semibold tracking-tight text-stone-950 md:text-5xl"
             style={{
