@@ -12,7 +12,6 @@ import { ImageLightbox } from "@/components/image-lightbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { editImage, generateImage } from "@/lib/api";
-import { cn } from "@/lib/utils";
 import { getStoredAuthKey } from "@/store/auth";
 import {
   clearImageConversations,
@@ -831,10 +830,7 @@ export default function ImagePage() {
 
           <div
             ref={resultsViewportRef}
-            className={cn(
-              "hide-scrollbar min-h-0 overflow-y-auto px-2 py-3 sm:px-4 sm:py-4",
-              selectedConversation ? "flex-1" : "flex-none",
-            )}
+            className="hide-scrollbar min-h-0 flex-1 overflow-y-auto px-2 py-3 sm:px-4 sm:py-4"
           >
             <ImageResults
               selectedConversation={selectedConversation}
