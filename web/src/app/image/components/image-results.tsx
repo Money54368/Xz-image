@@ -26,10 +26,10 @@ export function ImageResults({
 }: ImageResultsProps) {
   if (!selectedConversation) {
     return (
-      <div className="flex min-h-[180px] items-start justify-center pt-4 text-center sm:min-h-[220px] sm:pt-6">
+      <div className="flex min-h-[180px] items-start justify-center pt-6 text-center sm:min-h-[220px] sm:pt-10">
         <div className="w-full max-w-3xl">
           <h1
-            className="text-3xl font-semibold tracking-tight text-stone-950 md:text-5xl"
+            className="text-4xl font-semibold tracking-tight text-stone-950 md:text-6xl"
             style={{
               fontFamily: '"Palatino Linotype","Book Antiqua","URW Palladio L","Times New Roman",serif',
             }}
@@ -65,8 +65,8 @@ export function ImageResults({
         return (
           <div key={turn.id} className="flex flex-col gap-4">
             <div className="flex justify-end">
-              <div className="max-w-[82%] px-1 py-1 text-[15px] leading-7 text-stone-900">
-                <div className="mb-2 flex flex-wrap justify-end gap-2 text-[11px] text-stone-400">
+              <div className="max-w-[82%] rounded-3xl bg-stone-950 px-4 py-3 text-[15px] leading-7 text-white shadow-sm">
+                <div className="mb-2 flex flex-wrap justify-end gap-2 text-[11px] text-white/65">
                   <span>第 {turnIndex + 1} 轮</span>
                   <span>{turn.mode === "edit" ? "图生图" : "文生图"}</span>
                   <span>{getTurnStatusLabel(turn.status)}</span>
@@ -87,7 +87,7 @@ export function ImageResults({
                           <button
                             type="button"
                             onClick={() => onOpenLightbox(referenceLightboxImages, index)}
-                            className="group relative h-24 w-24 overflow-hidden border border-stone-200/80 bg-stone-100/60 text-left transition hover:border-stone-300"
+                            className="group relative h-24 w-24 overflow-hidden rounded-2xl border border-stone-200/80 bg-stone-100/60 text-left transition hover:border-stone-300"
                             aria-label={`预览参考图 ${image.name || index + 1}`}
                           >
                             <img
@@ -125,7 +125,7 @@ export function ImageResults({
                       const currentIndex = successfulTurnImages.findIndex((item) => item.id === image.id);
 
                       return (
-                        <div key={image.id} className="break-inside-avoid overflow-hidden">
+                        <div key={image.id} className="break-inside-avoid overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
                           <button
                             type="button"
                             onClick={() => onOpenLightbox(successfulTurnImages, currentIndex)}
@@ -134,7 +134,7 @@ export function ImageResults({
                             <img
                               src={`data:image/png;base64,${image.b64_json}`}
                               alt={`Generated result ${index + 1}`}
-                              className="block h-auto w-full transition duration-200 group-hover:brightness-90"
+                              className="block h-auto w-full transition duration-200 group-hover:brightness-95"
                             />
                           </button>
                           <div className="flex items-center justify-between gap-2 px-3 py-3">
@@ -158,7 +158,7 @@ export function ImageResults({
                         <div
                           key={image.id}
                           className={cn(
-                            "break-inside-avoid overflow-hidden border border-rose-200 bg-rose-50",
+                            "break-inside-avoid overflow-hidden rounded-3xl border border-rose-200 bg-rose-50",
                             turn.size === "1:1" && "aspect-square",
                             turn.size === "16:9" && "aspect-video",
                             turn.size === "9:16" && "aspect-[9/16]",
@@ -176,7 +176,7 @@ export function ImageResults({
                       <div
                         key={image.id}
                         className={cn(
-                          "break-inside-avoid overflow-hidden border border-stone-200/80 bg-stone-100/80",
+                          "break-inside-avoid overflow-hidden rounded-3xl border border-stone-200/80 bg-stone-100/80",
                           turn.size === "1:1" && "aspect-square",
                           turn.size === "16:9" && "aspect-video",
                           turn.size === "9:16" && "aspect-[9/16]",
@@ -195,7 +195,7 @@ export function ImageResults({
                 </div>
 
                 {turn.status === "error" && turn.error ? (
-                  <div className="mt-4 border-l-2 border-amber-300 bg-amber-50/70 px-4 py-3 text-sm leading-6 text-amber-700">
+                  <div className="mt-4 rounded-2xl border-l-2 border-amber-300 bg-amber-50/70 px-4 py-3 text-sm leading-6 text-amber-700">
                     {turn.error}
                   </div>
                 ) : null}

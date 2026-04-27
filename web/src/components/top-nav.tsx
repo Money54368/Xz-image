@@ -23,13 +23,10 @@ export function TopNav() {
   }
 
   return (
-    <header className="border-b border-stone-100/60">
-      <div className="flex h-12 items-center justify-between px-3 sm:px-6">
+    <header className="border-b border-stone-200/60">
+      <div className="flex h-14 items-center justify-between px-3 sm:px-6">
         <div className="flex items-center gap-3">
-          <Link
-            href="/image"
-            className="py-1 text-[14px] font-bold tracking-tight text-stone-950 transition hover:text-stone-700 sm:text-[15px]"
-          >
+          <Link href="/image" className="text-base font-semibold tracking-tight text-stone-950">
             Xz-Image
           </Link>
         </div>
@@ -42,24 +39,24 @@ export function TopNav() {
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "relative py-1 text-[13px] font-medium transition sm:text-[15px]",
+                  "relative py-1 text-sm font-medium transition sm:text-[15px]",
                   active ? "font-semibold text-stone-950" : "text-stone-500 hover:text-stone-900",
                 )}
               >
                 {item.label}
-                {active ? <span className="absolute inset-x-0 -bottom-[1px] h-0.5 bg-stone-950" /> : null}
+                {active ? <span className="absolute inset-x-0 -bottom-[9px] h-0.5 bg-stone-950" /> : null}
               </Link>
             );
           })}
         </div>
 
-        <div className="flex items-center justify-end gap-2 sm:gap-3">
-          <span className="hidden rounded-md bg-stone-100 px-2 py-1 text-[10px] font-medium text-stone-500 sm:inline-block sm:text-[11px]">
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-stone-100 px-2.5 py-1 text-[11px] font-medium text-stone-500">
             v{webConfig.appVersion}
           </span>
           <button
             type="button"
-            className="py-1 text-xs text-stone-400 transition hover:text-stone-700 sm:text-sm"
+            className="text-sm text-stone-400 transition hover:text-stone-700"
             onClick={() => void handleLogout()}
           >
             退出
