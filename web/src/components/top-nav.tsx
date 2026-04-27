@@ -7,9 +7,7 @@ import webConfig from "@/constants/common-env";
 import { clearStoredConnection } from "@/store/auth";
 import { cn } from "@/lib/utils";
 
-const navItems = [
-  { href: "/image", label: "绘图" },
-];
+const navItems = [{ href: "/image", label: "绘图" }];
 
 export function TopNav() {
   const pathname = usePathname();
@@ -25,9 +23,9 @@ export function TopNav() {
   }
 
   return (
-    <header className="border-b border-stone-100/50">
+    <header className="border-b border-stone-100/60">
       <div className="flex h-12 items-center justify-between px-3 sm:px-6">
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-3">
           <Link
             href="/image"
             className="py-1 text-[14px] font-bold tracking-tight text-stone-950 transition hover:text-stone-700 sm:text-[15px]"
@@ -35,7 +33,8 @@ export function TopNav() {
             Xz-Image
           </Link>
         </div>
-        <div className="flex flex-1 justify-center gap-3 sm:gap-8">
+
+        <div className="flex flex-1 justify-center gap-8">
           {navItems.map((item) => {
             const active = pathname === item.href;
             return (
@@ -53,6 +52,7 @@ export function TopNav() {
             );
           })}
         </div>
+
         <div className="flex items-center justify-end gap-2 sm:gap-3">
           <span className="hidden rounded-md bg-stone-100 px-2 py-1 text-[10px] font-medium text-stone-500 sm:inline-block sm:text-[11px]">
             v{webConfig.appVersion}

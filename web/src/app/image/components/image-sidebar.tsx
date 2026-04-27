@@ -56,11 +56,14 @@ export function ImageSidebar({
               正在读取会话记录
             </div>
           ) : conversations.length === 0 ? (
-            <div className="px-2 py-3 text-sm leading-6 text-stone-500">还没有图片记录，输入提示词后会在这里显示。</div>
+            <div className="px-2 py-3 text-sm leading-6 text-stone-500">
+              还没有图片记录，输入提示词后会在这里显示。
+            </div>
           ) : (
             conversations.map((conversation) => {
               const active = conversation.id === selectedConversationId;
               const stats = getImageConversationStats(conversation);
+
               return (
                 <div
                   key={conversation.id}
@@ -93,6 +96,7 @@ export function ImageSidebar({
                       </div>
                     ) : null}
                   </button>
+
                   <button
                     type="button"
                     onClick={() => void onDeleteConversation(conversation.id)}
