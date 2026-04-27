@@ -760,7 +760,7 @@ export default function ImagePage() {
 
   return (
     <>
-      <section className="mx-auto grid h-[calc(100vh-5rem)] min-h-0 w-full max-w-[1380px] grid-cols-1 gap-3 px-3 pb-6 lg:grid-cols-[248px_minmax(0,1fr)]">
+      <section className="grid h-[calc(100vh-5rem)] min-h-0 w-full grid-cols-1 gap-3 px-2 pb-6 lg:grid-cols-[260px_minmax(0,1fr)] lg:px-0">
         <div className="hidden h-full min-h-0 border-r border-stone-200/70 pr-4 lg:block">
           <ImageSidebar
             conversations={conversations}
