@@ -165,6 +165,78 @@ export function ImageComposer({
             onIndexChange={setLightboxIndex}
           />
 
+          <div className="mb-3 flex items-center gap-2 overflow-x-auto pb-1 sm:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {mode === "edit" && (
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 shrink-0 rounded-full border-stone-200 bg-white px-3 text-sm font-medium text-stone-700 shadow-none"
+                onClick={onPickReferenceImage}
+              >
+                <ImagePlus className="size-4" />
+                <span>{referenceImages.length > 0 ? "继续添加参考图" : "上传参考图"}</span>
+              </Button>
+            )}
+
+            <div
+              ref={sizeMenuRef}
+              className="relative shrink-0 rounded-full border border-stone-200 bg-white px-3 py-2 text-sm"
+            >
+              <button
+                type="button"
+                className="flex items-center justify-between gap-3 bg-transparent text-left font-medium text-stone-700"
+                onClick={() => setIsSizeMenuOpen((open) => !open)}
+              >
+                <span className="whitespace-nowrap">比例 {imageSizeLabel}</span>
+                <ChevronDown className={cn("size-4 shrink-0 opacity-60 transition", isSizeMenuOpen && "rotate-180")} />
+              </button>
+              {isSizeMenuOpen ? (
+                <div className="absolute bottom-[calc(100%+10px)] left-0 z-50 min-w-[220px] overflow-hidden rounded-3xl border border-white/80 bg-white p-2 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)]">
+                  {imageSizeOptions.map((option) => {
+                    const active = option.value === imageSize;
+                    return (
+                      <button
+                        key={option.label}
+                        type="button"
+                        className={cn(
+                          "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm text-stone-700 transition hover:bg-stone-100",
+                          active && "bg-stone-100 font-medium text-stone-950",
+                        )}
+                        onClick={() => {
+                          onImageSizeChange(option.value);
+                          setIsSizeMenuOpen(false);
+                        }}
+                      >
+                        <span>{option.label}</span>
+                        {active ? <Check className="size-4" /> : null}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="flex shrink-0 items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2">
+              <span className="text-sm font-medium text-stone-700">张数</span>
+              <Input
+                type="number"
+                min="1"
+                max="10"
+                step="1"
+                value={imageCount}
+                onChange={(event) => onImageCountChange(event.target.value)}
+                className="h-7 w-[44px] border-0 bg-transparent px-0 text-center text-sm font-medium text-stone-700 shadow-none focus-visible:ring-0"
+              />
+            </div>
+
+            <ModeButton active={mode === "generate"} onClick={() => onModeChange("generate")}>
+              文生图
+            </ModeButton>
+            <ModeButton active={mode === "edit"} onClick={() => onModeChange("edit")}>
+              图生图
+            </ModeButton>
+          </div>
+
           <Textarea
             ref={textareaRef}
             value={prompt}
@@ -184,7 +256,7 @@ export function ImageComposer({
             className="min-h-[120px] rounded-[24px] border-0 bg-transparent px-3 py-3 text-base leading-7 shadow-none focus-visible:ring-0 sm:min-h-[148px] sm:px-5"
           />
 
-          <div className="mt-3 flex flex-col gap-3">
+          <div className="mt-3 hidden flex-col gap-3 sm:flex">
             <div className="flex flex-wrap items-center gap-2">
               {mode === "edit" && (
                 <Button
@@ -197,9 +269,6 @@ export function ImageComposer({
                   <span>{referenceImages.length > 0 ? "继续添加参考图" : "上传参考图"}</span>
                 </Button>
               )}
-              <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-600">
-                余额状态 {availableQuota}
-              </div>
               {activeTaskCount > 0 && (
                 <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
                   <LoaderCircle className="size-3 animate-spin" />
@@ -284,6 +353,18 @@ export function ImageComposer({
               </div>
             </div>
           </div>
+
+          <div className="mt-3 flex justify-end sm:hidden">
+            <button
+              type="button"
+              onClick={() => void onSubmit()}
+              disabled={!prompt.trim() || (mode === "edit" && referenceImages.length === 0)}
+              className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+              aria-label={mode === "edit" ? "编辑图片" : "生成图片"}
+            >
+              <ArrowUp className="size-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -304,7 +385,7 @@ function ModeButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full px-3 py-2 text-sm font-medium transition",
+        "shrink-0 rounded-full px-3 py-2 text-sm font-medium transition",
         active ? "bg-stone-950 text-white" : "bg-stone-100 text-stone-600 hover:bg-stone-200",
       )}
     >
