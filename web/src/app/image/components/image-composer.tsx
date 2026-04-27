@@ -1,4 +1,5 @@
 "use client";
+
 import { ArrowUp, Check, ChevronDown, ImagePlus, LoaderCircle, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState, type ClipboardEvent, type RefObject } from "react";
 
@@ -52,26 +53,26 @@ export function ImageComposer({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [isSizeMenuOpen, setIsSizeMenuOpen] = useState(false);
   const sizeMenuRef = useRef<HTMLDivElement>(null);
+
   const lightboxImages = useMemo(
     () => referenceImages.map((image, index) => ({ id: `${image.name}-${index}`, src: image.dataUrl })),
     [referenceImages],
   );
 
-  const imageSizeOptions = mode === "edit"
-    ? [
-        { value: "", label: "未指定（跟随原图）" },
-        { value: "1:1", label: "1:1（1024x1024）" },
-      ]
-    : [
-        { value: "", label: "未指定" },
-        { value: "1:1", label: "1:1（1024x1024）" },
-        { value: "16:9", label: "16:9（1824x1024）" },
-        { value: "9:16", label: "9:16（1024x1824）" },
-      ];
+  const imageSizeOptions =
+    mode === "edit"
+      ? [
+          { value: "", label: "跟随原图" },
+          { value: "1:1", label: "1:1（1024x1024）" },
+        ]
+      : [
+          { value: "", label: "跟随原图" },
+          { value: "1:1", label: "1:1（1024x1024）" },
+          { value: "16:9", label: "16:9（1824x1024）" },
+          { value: "9:16", label: "9:16（1024x1824）" },
+        ];
 
-  const imageSizeLabel =
-    imageSizeOptions.find((option) => option.value === imageSize)?.label ||
-    (mode === "edit" ? "未指定（跟随原图）" : "未指定");
+  const imageSizeLabel = imageSizeOptions.find((option) => option.value === imageSize)?.label || "跟随原图";
 
   useEffect(() => {
     if (!isSizeMenuOpen) {
@@ -89,6 +90,12 @@ export function ImageComposer({
   }, [isSizeMenuOpen]);
 
   const handleTextareaPaste = (event: ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = Array.from(event.clipboardData.items || []);
+    const hasImageItem = items.some((item) => item.type.startsWith("image/"));
+    if (!hasImageItem) {
+      return;
+    }
+
     const imageFiles = Array.from(event.clipboardData.files).filter((file) => file.type.startsWith("image/"));
     if (imageFiles.length === 0) {
       return;
@@ -100,7 +107,7 @@ export function ImageComposer({
 
   return (
     <div className="shrink-0 flex justify-center">
-      <div style={{ width: "min(980px, 100%)" }}>
+      <div className="w-full max-w-[980px]">
         {mode === "edit" && (
           <input
             ref={fileInputRef}
@@ -149,138 +156,130 @@ export function ImageComposer({
           </div>
         ) : null}
 
-        <div className="rounded-[32px] border border-stone-200 bg-white">
-          <div
-            className="relative cursor-text"
-            onClick={() => {
-              textareaRef.current?.focus();
-            }}
-          >
-            <ImageLightbox
-              images={lightboxImages}
-              currentIndex={lightboxIndex}
-              open={lightboxOpen}
-              onOpenChange={setLightboxOpen}
-              onIndexChange={setLightboxIndex}
-            />
-            <Textarea
-              ref={textareaRef}
-              value={prompt}
-              onChange={(event) => onPromptChange(event.target.value)}
-              onPaste={handleTextareaPaste}
-              placeholder={
-                mode === "edit"
-                  ? "描述你希望如何修改这张参考图，也可以直接粘贴图片"
-                  : "输入你想生成的画面，也可以直接粘贴图片开始图生图"
+        <div className="rounded-[28px] border border-stone-200 bg-white p-3 sm:p-4">
+          <ImageLightbox
+            images={lightboxImages}
+            currentIndex={lightboxIndex}
+            open={lightboxOpen}
+            onOpenChange={setLightboxOpen}
+            onIndexChange={setLightboxIndex}
+          />
+
+          <Textarea
+            ref={textareaRef}
+            value={prompt}
+            onChange={(event) => onPromptChange(event.target.value)}
+            onPaste={handleTextareaPaste}
+            placeholder={
+              mode === "edit"
+                ? "描述你希望如何修改这张参考图，也可以直接粘贴图片"
+                : "输入你想生成的画面，也可以直接粘贴图片开始图生图"
+            }
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && !event.shiftKey) {
+                event.preventDefault();
+                void onSubmit();
               }
-              onKeyDown={(event) => {
-                if (event.key === "Enter" && !event.shiftKey) {
-                  event.preventDefault();
-                  void onSubmit();
-                }
-              }}
-              className="min-h-[148px] resize-none rounded-[32px] border-0 bg-transparent px-6 pt-6 pb-20 text-[15px] leading-7 text-stone-900 shadow-none placeholder:text-stone-400 focus-visible:ring-0"
-            />
+            }}
+            className="min-h-[120px] rounded-[24px] border-0 bg-transparent px-3 py-3 text-base leading-7 shadow-none focus-visible:ring-0 sm:min-h-[148px] sm:px-5"
+          />
 
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-white via-white/95 to-transparent px-4 pb-4 pt-6 sm:px-6">
-              <div className="flex items-end justify-between gap-3">
-                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-3">
-                  {mode === "edit" && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-9 rounded-full border-stone-200 bg-white px-3 text-xs font-medium text-stone-700 shadow-none sm:h-10 sm:px-4 sm:text-sm"
-                      onClick={onPickReferenceImage}
-                    >
-                      <ImagePlus className="size-3.5 sm:size-4" />
-                      <span className="hidden sm:inline">
-                        {referenceImages.length > 0 ? "继续添加参考图" : "上传参考图"}
-                      </span>
-                      <span className="sm:hidden">{referenceImages.length > 0 ? "继续" : "上传"}</span>
-                    </Button>
-                  )}
-                  <div className="rounded-full bg-stone-100 px-2 py-1 text-[10px] font-medium text-stone-600 sm:px-3 sm:py-2 sm:text-xs">
-                    <span className="hidden xs:inline">余额状态 </span>
-                    {availableQuota}
-                  </div>
-                  {activeTaskCount > 0 && (
-                    <div className="flex items-center gap-1 rounded-full bg-amber-50 px-2 py-1 text-[10px] font-medium text-amber-700 sm:gap-1.5 sm:px-3 sm:py-2 sm:text-xs">
-                      <LoaderCircle className="size-3 animate-spin" />
-                      {activeTaskCount}
-                      <span className="hidden sm:inline"> 个任务处理中</span>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2 py-0.5 sm:gap-2 sm:px-3 sm:py-1">
-                    <span className="text-[11px] font-medium text-stone-700 sm:text-sm">张数</span>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="10"
-                      step="1"
-                      value={imageCount}
-                      onChange={(event) => onImageCountChange(event.target.value)}
-                      className="h-7 w-[40px] border-0 bg-transparent px-0 text-center text-xs font-medium text-stone-700 shadow-none focus-visible:ring-0 sm:h-8 sm:w-[64px] sm:text-sm"
-                    />
-                  </div>
-                  <div
-                    ref={sizeMenuRef}
-                    className="relative flex items-center gap-1.5 rounded-full border border-stone-200 bg-white px-2 py-0.5 text-[11px] sm:gap-2 sm:px-3 sm:py-1 sm:text-[13px]"
-                  >
-                    <span className="font-medium text-stone-700 sm:text-sm">比例</span>
-                    <button
-                      type="button"
-                      className="flex h-7 w-[148px] items-center justify-between bg-transparent text-left text-xs font-bold text-stone-700 sm:h-8 sm:w-[176px]"
-                      onClick={() => setIsSizeMenuOpen((open) => !open)}
-                    >
-                      <span className="truncate">{imageSizeLabel}</span>
-                      <ChevronDown className={cn("size-4 shrink-0 opacity-60 transition", isSizeMenuOpen && "rotate-180")} />
-                    </button>
-                    {isSizeMenuOpen ? (
-                      <div className="absolute bottom-[calc(100%+10px)] left-0 z-50 w-[220px] overflow-hidden rounded-3xl border border-white/80 bg-white p-2 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)]">
-                        {imageSizeOptions.map((option) => {
-                          const active = option.value === imageSize;
-                          return (
-                            <button
-                              key={option.label}
-                              type="button"
-                              className={cn(
-                                "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm text-stone-700 transition hover:bg-stone-100",
-                                active && "bg-stone-100 font-medium text-stone-950",
-                              )}
-                              onClick={() => {
-                                onImageSizeChange(option.value);
-                                setIsSizeMenuOpen(false);
-                              }}
-                            >
-                              <span>{option.label}</span>
-                              {active ? <Check className="size-4" /> : null}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                  </div>
-
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <ModeButton active={mode === "generate"} onClick={() => onModeChange("generate")}>
-                      文生图
-                    </ModeButton>
-                    <ModeButton active={mode === "edit"} onClick={() => onModeChange("edit")}>
-                      图生图
-                    </ModeButton>
-                  </div>
+          <div className="mt-3 flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {mode === "edit" && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="h-10 rounded-full border-stone-200 bg-white px-3 text-sm font-medium text-stone-700 shadow-none"
+                  onClick={onPickReferenceImage}
+                >
+                  <ImagePlus className="size-4" />
+                  <span>{referenceImages.length > 0 ? "继续添加参考图" : "上传参考图"}</span>
+                </Button>
+              )}
+              <div className="rounded-full bg-stone-100 px-3 py-2 text-xs font-medium text-stone-600">
+                余额状态 {availableQuota}
+              </div>
+              {activeTaskCount > 0 && (
+                <div className="flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">
+                  <LoaderCircle className="size-3 animate-spin" />
+                  {activeTaskCount} 个任务处理中
                 </div>
+              )}
+            </div>
 
+            <div className="grid grid-cols-[minmax(0,1fr)_110px] gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+              <div
+                ref={sizeMenuRef}
+                className="relative min-w-0 rounded-full border border-stone-200 bg-white px-3 py-2 text-sm"
+              >
                 <button
                   type="button"
-                  onClick={() => void onSubmit()}
-                  disabled={!prompt.trim() || (mode === "edit" && referenceImages.length === 0)}
-                  className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-300 sm:size-11"
-                  aria-label={mode === "edit" ? "编辑图片" : "生成图片"}
+                  className="flex w-full items-center justify-between gap-3 bg-transparent text-left font-medium text-stone-700"
+                  onClick={() => setIsSizeMenuOpen((open) => !open)}
                 >
-                  <ArrowUp className="size-3.5 sm:size-4" />
+                  <span className="min-w-0 truncate">比例 {imageSizeLabel}</span>
+                  <ChevronDown className={cn("size-4 shrink-0 opacity-60 transition", isSizeMenuOpen && "rotate-180")} />
                 </button>
+                {isSizeMenuOpen ? (
+                  <div className="absolute bottom-[calc(100%+10px)] left-0 z-50 w-full min-w-[220px] overflow-hidden rounded-3xl border border-white/80 bg-white p-2 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)]">
+                    {imageSizeOptions.map((option) => {
+                      const active = option.value === imageSize;
+                      return (
+                        <button
+                          key={option.label}
+                          type="button"
+                          className={cn(
+                            "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm text-stone-700 transition hover:bg-stone-100",
+                            active && "bg-stone-100 font-medium text-stone-950",
+                          )}
+                          onClick={() => {
+                            onImageSizeChange(option.value);
+                            setIsSizeMenuOpen(false);
+                          }}
+                        >
+                          <span>{option.label}</span>
+                          {active ? <Check className="size-4" /> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </div>
+
+              <div className="flex items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2">
+                <span className="text-sm font-medium text-stone-700">张数</span>
+                <Input
+                  type="number"
+                  min="1"
+                  max="10"
+                  step="1"
+                  value={imageCount}
+                  onChange={(event) => onImageCountChange(event.target.value)}
+                  className="h-7 w-[44px] border-0 bg-transparent px-0 text-center text-sm font-medium text-stone-700 shadow-none focus-visible:ring-0"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ModeButton active={mode === "generate"} onClick={() => onModeChange("generate")}>
+                  文生图
+                </ModeButton>
+                <ModeButton active={mode === "edit"} onClick={() => onModeChange("edit")}>
+                  图生图
+                </ModeButton>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => void onSubmit()}
+                disabled={!prompt.trim() || (mode === "edit" && referenceImages.length === 0)}
+                className="inline-flex size-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition hover:bg-stone-800 disabled:cursor-not-allowed disabled:bg-stone-300"
+                aria-label={mode === "edit" ? "编辑图片" : "生成图片"}
+              >
+                <ArrowUp className="size-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -303,7 +302,7 @@ function ModeButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "rounded-full px-2.5 py-1.5 text-xs font-medium transition sm:px-4 sm:py-2 sm:text-sm",
+        "rounded-full px-3 py-2 text-sm font-medium transition",
         active ? "bg-stone-950 text-white" : "bg-stone-100 text-stone-600 hover:bg-stone-200",
       )}
     >

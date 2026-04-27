@@ -119,6 +119,12 @@
   body {
     @apply bg-background text-foreground;
   }
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
 }
 
 @layer utilities {
