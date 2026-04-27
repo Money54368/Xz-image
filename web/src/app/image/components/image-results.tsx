@@ -26,7 +26,7 @@ export function ImageResults({
 }: ImageResultsProps) {
   if (!selectedConversation) {
     return (
-      <div className="flex h-full min-h-[420px] items-center justify-center text-center">
+      <div className="flex h-full min-h-[300px] items-start justify-center pt-16 text-center sm:min-h-[420px] sm:pt-20">
         <div className="w-full max-w-4xl">
           <h1
             className="text-3xl font-semibold tracking-tight text-stone-950 md:text-5xl"
@@ -162,9 +162,7 @@ export function ImageResults({
                             turn.size === "1:1" && "aspect-square",
                             turn.size === "16:9" && "aspect-video",
                             turn.size === "9:16" && "aspect-[9/16]",
-                            turn.size === "4:3" && "aspect-[4/3]",
-                            turn.size === "3:4" && "aspect-[3/4]",
-                            !["1:1", "16:9", "9:16", "4:3", "3:4"].includes(turn.size) && "aspect-square",
+                            !["1:1", "16:9", "9:16"].includes(turn.size) && "aspect-square",
                           )}
                         >
                           <div className="flex h-full items-center justify-center px-6 py-8 text-center text-sm leading-6 text-rose-600">
@@ -182,22 +180,14 @@ export function ImageResults({
                           turn.size === "1:1" && "aspect-square",
                           turn.size === "16:9" && "aspect-video",
                           turn.size === "9:16" && "aspect-[9/16]",
-                          turn.size === "4:3" && "aspect-[4/3]",
-                          turn.size === "3:4" && "aspect-[3/4]",
-                          !["1:1", "16:9", "9:16", "4:3", "3:4"].includes(turn.size) && "aspect-square",
+                          !["1:1", "16:9", "9:16"].includes(turn.size) && "aspect-square",
                         )}
                       >
                         <div className="flex h-full flex-col items-center justify-center gap-3 px-6 py-8 text-center text-stone-500">
                           <div className="rounded-full bg-white p-3 shadow-sm">
-                            {turn.status === "queued" ? (
-                              <Clock3 className="size-5" />
-                            ) : (
-                              <LoaderCircle className="size-5 animate-spin" />
-                            )}
+                            {turn.status === "queued" ? <Clock3 className="size-5" /> : <LoaderCircle className="size-5 animate-spin" />}
                           </div>
-                          <p className="text-sm">
-                            {turn.status === "queued" ? "已加入当前对话队列..." : "正在处理图片..."}
-                          </p>
+                          <p className="text-sm">{turn.status === "queued" ? "已加入当前对话队列..." : "正在处理图片..."}</p>
                         </div>
                       </div>
                     );
