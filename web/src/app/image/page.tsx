@@ -830,7 +830,10 @@ export default function ImagePage() {
 
           <div
             ref={resultsViewportRef}
-            className="hide-scrollbar min-h-0 flex-1 overflow-y-auto px-2 py-3 sm:px-4 sm:py-4"
+            className={cn(
+              "hide-scrollbar min-h-0 overflow-y-auto px-2 py-3 sm:px-4 sm:py-4",
+              selectedConversation ? "flex-1" : "flex-none",
+            )}
           >
             <ImageResults
               selectedConversation={selectedConversation}
