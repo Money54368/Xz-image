@@ -178,42 +178,21 @@ export function ImageComposer({
               </Button>
             )}
 
-            <div
-              ref={sizeMenuRef}
-              className="relative shrink-0 rounded-full border border-stone-200 bg-white px-3 py-2 text-sm"
-            >
-              <button
-                type="button"
-                className="flex items-center justify-between gap-3 bg-transparent text-left font-medium text-stone-700"
-                onClick={() => setIsSizeMenuOpen((open) => !open)}
-              >
-                <span className="whitespace-nowrap">比例 {imageSizeLabel}</span>
-                <ChevronDown className={cn("size-4 shrink-0 opacity-60 transition", isSizeMenuOpen && "rotate-180")} />
-              </button>
-              {isSizeMenuOpen ? (
-                <div className="absolute bottom-[calc(100%+10px)] left-0 z-50 min-w-[220px] overflow-hidden rounded-3xl border border-white/80 bg-white p-2 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.35)]">
-                  {imageSizeOptions.map((option) => {
-                    const active = option.value === imageSize;
-                    return (
-                      <button
-                        key={option.label}
-                        type="button"
-                        className={cn(
-                          "flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-sm text-stone-700 transition hover:bg-stone-100",
-                          active && "bg-stone-100 font-medium text-stone-950",
-                        )}
-                        onClick={() => {
-                          onImageSizeChange(option.value);
-                          setIsSizeMenuOpen(false);
-                        }}
-                      >
-                        <span>{option.label}</span>
-                        {active ? <Check className="size-4" /> : null}
-                      </button>
-                    );
-                  })}
-                </div>
-              ) : null}
+            <div className="shrink-0 rounded-full border border-stone-200 bg-white px-3 py-2 text-sm">
+              <label className="flex items-center gap-2 text-sm font-medium text-stone-700">
+                <span>比例</span>
+                <select
+                  value={imageSize}
+                  onChange={(event) => onImageSizeChange(event.target.value)}
+                  className="min-w-[128px] bg-transparent text-sm outline-none"
+                >
+                  {imageSizeOptions.map((option) => (
+                    <option key={option.value || "default"} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
 
             <div className="flex shrink-0 items-center gap-2 rounded-full border border-stone-200 bg-white px-3 py-2">
@@ -253,10 +232,10 @@ export function ImageComposer({
                 void onSubmit();
               }
             }}
-            className="min-h-[120px] rounded-[24px] border-0 bg-transparent px-3 py-3 text-base leading-7 shadow-none focus-visible:ring-0 sm:min-h-[148px] sm:px-5"
+            className="min-h-[76px] rounded-[24px] border-0 bg-transparent px-3 py-2 text-base leading-7 shadow-none focus-visible:ring-0 sm:min-h-[96px] sm:px-4 sm:py-2.5"
           />
 
-          <div className="mt-3 hidden flex-col gap-3 sm:flex">
+          <div className="mt-2 hidden flex-col gap-2.5 sm:flex">
             <div className="flex flex-wrap items-center gap-2">
               {mode === "edit" && (
                 <Button
@@ -277,7 +256,7 @@ export function ImageComposer({
               )}
             </div>
 
-            <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex flex-col gap-2.5 xl:flex-row xl:items-center xl:justify-between">
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <div
                   ref={sizeMenuRef}
