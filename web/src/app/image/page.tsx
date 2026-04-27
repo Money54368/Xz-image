@@ -12,6 +12,7 @@ import { ImageLightbox } from "@/components/image-lightbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { editImage, generateImage } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import { getStoredAuthKey } from "@/store/auth";
 import {
   clearImageConversations,
